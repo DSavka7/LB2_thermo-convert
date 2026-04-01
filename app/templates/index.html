@@ -1,33 +1,120 @@
 {% extends "base.html" %}
+{% block title %}Конвертер{% endblock %}
+
+{% block nav_extra %}
+    <span>Конвертацій: {{ history_count }}</span>
+{% endblock %}
 
 {% block content %}
-<div class="card p-4 shadow-lg bg-secondary text-light" style="width: 400px;">
 
-    <h3 class="text-center mb-3">Конвертер температур</h3>
+{% if error %}
+<div class="alert alert-error">⚠ {{ error }}</div>
+{% endif %}
 
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
+<div class="converter-card">
+    <div class="converter-title">Конвертер температур</div>
+    <div class="converter-desc">Введіть температуру в градусах Цельсія для миттєвого перетворення у Фаренгейт</div>
 
-    <form method="post">
-        <input type="number" step="any" name="celsius"
-               value="{{ celsius }}"
-               class="form-control mb-3"
-               placeholder="Введіть °C"
-               required>
-
-        <button class="btn btn-warning w-100">Конвертувати</button>
-    </form>
-
-    {% if result %}
-        <div class="alert alert-info mt-3 text-center">
-            {{ result.celsius }} °C = <strong>{{ result.fahrenheit }} °F</strong>
+    <!-- Live temperature display -->
+    <div class="thermo-visual">
+        <div class="temp-bubble celsius">
+            <div class="value {% if result %}result-glow{% endif %}" id="val-c">
+                {% if result %}{{ result.celsius }}{% else %}—{% endif %}
+            </div>
+            <div class="unit">°C</div>
         </div>
-    {% endif %}
 
-    <a href="/history" class="btn btn-outline-light mt-3">
-        Журнал ({{ history_count }})
-    </a>
+        <div class="thermo-arrow">→</div>
 
+        <div class="temp-bubble fahrenheit">
+            <div class="value {% if result %}result-glow{% endif %}" id="val-f">
+                {% if result %}{{ result.fahrenheit }}{% else %}—{% endif %}
+            </div>
+            <div class="unit">°F</div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" action="/" autocomplete="off">
+        <div class="input-row">
+            <div class="input-wrap">
+                <span class="prefix">°C</span>
+                <input
+                    class="temp-input"
+                    type="number"
+                    step="any"
+                    name="celsius"
+                    value="{{ celsius }}"
+                    placeholder="напр. 100"
+                    id="celsius-input"
+                    autofocus
+                >
+            </div>
+            <button class="btn-convert" type="submit">
+                ⚡ Конвертувати
+            </button>
+        </div>
+        <p class="hint">Допустимий діапазон: від −273.15 °C (абсолютний нуль) до будь-якого додатного значення</p>
+    </form>
 </div>
+
+<!-- Quick reference -->
+<div class="history-card" style="margin-bottom:0;">
+    <div class="history-header">
+        <div class="history-title">
+            📌 Довідка
+            <span class="history-count">відомі точки</span>
+        </div>
+    </div>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Опис</th>
+                <th>°C</th>
+                <th>°F</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Абсолютний нуль</td>
+                <td class="td-celsius">−273.15</td>
+                <td class="td-fahrenheit">−459.67</td>
+            </tr>
+            <tr>
+                <td>Замерзання води</td>
+                <td class="td-celsius">0</td>
+                <td class="td-fahrenheit">32</td>
+            </tr>
+            <tr>
+                <td>Температура тіла</td>
+                <td class="td-celsius">36.6</td>
+                <td class="td-fahrenheit">97.88</td>
+            </tr>
+            <tr>
+                <td>Кипіння води</td>
+                <td class="td-celsius">100</td>
+                <td class="td-fahrenheit">212</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    /* Live preview while typing */
+    const inp = document.getElementById('celsius-input');
+    const valC = document.getElementById('val-c');
+    const valF = document.getElementById('val-f');
+
+    inp.addEventListener('input', () => {
+        const v = parseFloat(inp.value);
+        if (!isNaN(v)) {
+            valC.textContent = v;
+            valF.textContent = Math.round((v * 9/5 + 32) * 100) / 100;
+        } else {
+            valC.textContent = '—';
+            valF.textContent = '—';
+        }
+    });
+</script>
+
 {% endblock %}

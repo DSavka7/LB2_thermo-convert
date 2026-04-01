@@ -11,10 +11,7 @@ templates = Jinja2Templates(directory="app/templates")
 repo = ConversionRepository()
 service = ConversionService(repo)
 
-
 router = APIRouter()
-
-
 api_router = APIRouter(prefix="/api")
 
 
@@ -25,20 +22,22 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "history_count": len(service.get_history()),
-        "celsius": ""
+        "celsius": "",
+        "result": None,
+        "error": None,
     })
 
 
 @router.post("/")
 async def convert(request: Request):
     form = await request.form()
-    value = form.get("celsius")
+    value = form.get("celsius", "").strip()
 
     try:
         celsius = float(value)
 
-        if not -273.15 <= celsius <= 1000:
-            raise ValueError
+        if not (-273.15 <= celsius <= 1_000_000):
+            raise ValueError("Out of range")
 
         result = service.convert(celsius)
 
@@ -46,15 +45,17 @@ async def convert(request: Request):
             "request": request,
             "result": result,
             "history_count": len(service.get_history()),
-            "celsius": celsius
+            "celsius": celsius,
+            "error": None,
         })
 
-    except:
+    except ValueError:
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "error": "Некоректне значення!",
+            "error": "Введіть коректне числове значення температури.",
             "history_count": len(service.get_history()),
-            "celsius": value
+            "celsius": value,
+            "result": None,
         })
 
 
@@ -62,7 +63,7 @@ async def convert(request: Request):
 async def history_page(request: Request):
     return templates.TemplateResponse("history.html", {
         "request": request,
-        "history": service.get_history()
+        "history": service.get_history(),
     })
 
 

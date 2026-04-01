@@ -6,11 +6,11 @@ class ConversionRepository:
     def __init__(self):
         self._data: List[Conversion] = []
 
-    def add(self, conversion: Conversion):
+    def add(self, conversion: Conversion) -> None:
         self._data.append(conversion)
 
     def get_all(self) -> List[Conversion]:
-        return self._data
+        return list(reversed(self._data))
 
-    def clear(self):
+    def clear(self) -> None:
         self._data.clear()
