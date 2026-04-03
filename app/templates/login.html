@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Логін{% endblock %}
+
+{% block content %}
+<div class="converter-card">
+    <div class="converter-title">Вхід в систему</div>
+    <div class="converter-desc">Увійдіть, щоб використовувати конвертер та журнал</div>
+    {% if error %}
+    <div class="alert alert-error">⚠ {{ error }}</div>
+    {% endif %}
+    <form method="post" action="/auth/login">
+        <div class="input-row" style="flex-direction: column; gap: 20px;">
+            <div class="input-wrap">
+                <input class="temp-input" type="text" name="username" placeholder="Ім'я користувача" required>
+            </div>
+            <div class="input-wrap">
+                <input class="temp-input" type="password" name="password" placeholder="Пароль" required>
+            </div>
+            <button class="btn-convert" type="submit">Увійти</button>
+        </div>
+    </form>
+    <p style="text-align: center; margin-top: 20px;">Немає акаунту? <a href="/auth/register">Зареєструватися</a></p>
+</div>
+{% endblock %}

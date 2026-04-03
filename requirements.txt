@@ -3,3 +3,7 @@ uvicorn[standard]
 jinja2
 python-multipart
 pydantic
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv

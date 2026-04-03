@@ -12,19 +12,30 @@
 <body>
 <div class="page">
 
-    <header class="site-header">
-        <a href="/" class="brand" style="text-decoration:none;">
-            <div class="brand-logo">🌡</div>
-            <div>
-                <span class="brand-name">ThermoConvert</span>
-                <span class="brand-sub">FastAPI · Lab Work</span>
-            </div>
-        </a>
-        <div class="nav-pill">
-            {% block nav_extra %}{% endblock %}
-            <a href="/history">📋 Журнал</a>
+   <header class="site-header">
+    <a href="/" class="brand" style="text-decoration:none;">
+        <div class="brand-logo">🌡</div>
+        <div>
+            <span class="brand-name">ThermoConvert</span>
+            <span class="brand-sub">FastAPI · Lab Work</span>
         </div>
-    </header>
+    </a>
+
+    <div class="nav-pill">
+        {% block nav_extra %}{% endblock %}
+
+        <a href="/history">📋 Журнал</a>
+
+        <!-- Адмін-посилання видно тільки адміністраторам -->
+        {% if current_user and current_user.role == 'admin' %}
+            <a href="/admin" style="background: #f97316; color: white; border-color: #f97316;">
+                ⚙️ Адмін-панель
+            </a>
+        {% endif %}
+
+        <a href="/auth/logout">🚪 Вийти</a>
+    </div>
+</header>
 
     {% block content %}{% endblock %}
 
