@@ -1,23 +1,25 @@
 from datetime import datetime
-from app.models.conversion import Conversion
-from app.repositories.conversion_repo import ConversionRepository
 from sqlalchemy.orm import Session
+
+from app.models.conversion import ConversionSchema
+from app.repositories.conversion_repo import ConversionRepository
+from app.utils.temperature import celsius_to_fahrenheit
+
 
 class ConversionService:
     def __init__(self, repo: ConversionRepository):
         self.repo = repo
 
-    def convert(self, celsius: float, db: Session, user_id: int) -> Conversion:
-        fahrenheit = round(celsius * 9 / 5 + 32, 2)
-        conversion = Conversion(
+    def convert(self, celsius: float, db: Session, user_id: int) -> ConversionSchema:
+        schema = ConversionSchema(
             celsius=celsius,
-            fahrenheit=fahrenheit,
+            fahrenheit=celsius_to_fahrenheit(celsius),
             timestamp=datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
         )
-        self.repo.add(conversion, db, user_id)
-        return conversion
+        self.repo.add(schema, db, user_id)
+        return schema
 
-    def get_history(self, db: Session, user_id: int) -> list:
+    def get_history(self, db: Session, user_id: int) -> list[ConversionSchema]:
         return self.repo.get_all(db, user_id)
 
     def clear_history(self, db: Session, user_id: int) -> None:

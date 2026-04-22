@@ -1,12 +1,20 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, Float, String, ForeignKey
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
+
 from app.db import Base
 
-class Conversion(BaseModel):
+
+# ── Pydantic schema (API responses & service layer) ──────────────────────────
+class ConversionSchema(BaseModel):
     celsius: float
     fahrenheit: float
     timestamp: str
 
+    class Config:
+        from_attributes = True
+
+
+# ── SQLAlchemy ORM model ─────────────────────────────────────────────────────
 class DbConversion(Base):
     __tablename__ = "conversions"
 

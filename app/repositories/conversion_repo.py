@@ -1,29 +1,31 @@
 from typing import List
 from sqlalchemy.orm import Session
 
-from app.models.conversion import Conversion, DbConversion
+from app.models.conversion import ConversionSchema, DbConversion
+
 
 class ConversionRepository:
-    def add(self, conversion: Conversion, db: Session, user_id: int) -> None:
-        db_conversion = DbConversion(
-            celsius=conversion.celsius,
-            fahrenheit=conversion.fahrenheit,
-            timestamp=conversion.timestamp,
+    def add(self, schema: ConversionSchema, db: Session, user_id: int) -> None:
+        record = DbConversion(
+            celsius=schema.celsius,
+            fahrenheit=schema.fahrenheit,
+            timestamp=schema.timestamp,
             user_id=user_id,
         )
-        db.add(db_conversion)
+        db.add(record)
         db.commit()
-        db.refresh(db_conversion)
+        db.refresh(record)
 
-    def get_all(self, db: Session, user_id: int) -> List[Conversion]:
-        db_conversions = db.query(DbConversion).filter(DbConversion.user_id == user_id).order_by(DbConversion.id.desc()).all()
+    def get_all(self, db: Session, user_id: int) -> List[ConversionSchema]:
+        records = (
+            db.query(DbConversion)
+            .filter(DbConversion.user_id == user_id)
+            .order_by(DbConversion.id.desc())
+            .all()
+        )
         return [
-            Conversion(
-                celsius=c.celsius,
-                fahrenheit=c.fahrenheit,
-                timestamp=c.timestamp,
-            )
-            for c in db_conversions
+            ConversionSchema(celsius=r.celsius, fahrenheit=r.fahrenheit, timestamp=r.timestamp)
+            for r in records
         ]
 
     def clear(self, db: Session, user_id: int) -> None:

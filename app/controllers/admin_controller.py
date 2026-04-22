@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -10,22 +10,18 @@ from app.models.conversion import DbConversion
 
 templates = Jinja2Templates(directory="app/templates")
 
-router = APIRouter(prefix="/admin")
 
-
-@router.get("/")
 async def admin_panel(request: Request, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
     users = db.query(User).all()
     total_conversions = db.query(DbConversion).count()
 
-    # Статистика по користувачах
-    stats = []
-    for user in users:
-        conv_count = db.query(DbConversion).filter(DbConversion.user_id == user.id).count()
-        stats.append({
+    stats = [
+        {
             "user": user,
-            "conversions_count": conv_count
-        })
+            "conversions_count": db.query(DbConversion).filter(DbConversion.user_id == user.id).count(),
+        }
+        for user in users
+    ]
 
     return templates.TemplateResponse("admin.html", {
         "request": request,
@@ -33,10 +29,10 @@ async def admin_panel(request: Request, db: Session = Depends(get_db), admin=Dep
         "total_users": len(users),
         "total_conversions": total_conversions,
         "stats": stats,
+        "current_user": admin,
     })
 
 
-@router.post("/clear-all")
 async def clear_all_history(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
     db.query(DbConversion).delete()
     db.commit()
